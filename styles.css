@@ -872,6 +872,8 @@ section p {
     gap: 1rem;
     justify-content: center;
     flex-wrap: wrap;
+    margin-top: 2rem;
+    text-align: center;
 }
 
 /* Watch Past Services Styles */
