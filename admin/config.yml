@@ -7,51 +7,44 @@ media_folder: "images"
 public_folder: "/images"
 
 collections:
-  - name: "pages"
-    label: "Pages"
+  - name: "content"
+    label: "Site Content"
     files:
-      - label: "Home Page"
-        name: "home"
-        file: "index.html"
+      - label: "Church Information"
+        name: "church_info"
+        file: "_data/church.yml"
         fields:
-          - {label: "Church Name", name: "church_name", widget: "string", default: "Bethel Metropolitan Baptist Church"}
+          - {label: "Church Name", name: "name", widget: "string", default: "Bethel Metropolitan Baptist Church"}
           - {label: "Location", name: "location", widget: "string", default: "St. Petersburg, FL"}
-          - {label: "Hero Title", name: "hero_title", widget: "string", default: "Bethel Metropolitan Baptist Church"}
-          - {label: "Hero Subtitle", name: "hero_subtitle", widget: "string", default: "One Big Family"}
-          - {label: "Hero Description", name: "hero_description", widget: "text", default: "Connecting the Gospel Message-Word and Works-to the Community at Large (Matthew 28:19-20)"}
+          - {label: "Address", name: "address", widget: "text", default: "3455 26th Avenue South\nSt. Petersburg, FL 33711"}
           - {label: "Phone", name: "phone", widget: "string", default: "(727) 321-9645"}
           - {label: "Office Phone", name: "office_phone", widget: "string", default: "(727) 327-0554"}
           - {label: "Email", name: "email", widget: "string", default: "bchurch5@tampabay.rr.com"}
-          - {label: "Address", name: "address", widget: "text", default: "3455 26th Avenue South\nSt. Petersburg, FL 33711"}
+      
+      - label: "Hero Section"
+        name: "hero"
+        file: "_data/hero.yml"
+        fields:
+          - {label: "Hero Title", name: "title", widget: "string", default: "Bethel Metropolitan Baptist Church"}
+          - {label: "Hero Subtitle", name: "subtitle", widget: "string", default: "One Big Family"}
+          - {label: "Hero Description", name: "description", widget: "text", default: "Connecting the Gospel Message-Word and Works-to the Community at Large (Matthew 28:19-20)"}
           - {label: "Live Stream URL", name: "live_stream_url", widget: "string", default: "https://youtube.com/live/DyJavhSxNdA?feature=share"}
+      
+      - label: "Service Times"
+        name: "services"
+        file: "_data/services.yml"
+        fields:
           - {label: "Bible Study Zoom", name: "bible_study_zoom", widget: "string", default: "https://us02web.zoom.us/j/4327715646?pwd=VDNLN3VWS2tsR3lwdm5yRlZaMW9jdz09"}
           - {label: "Sunday School Zoom", name: "sunday_school_zoom", widget: "string", default: "https://us02web.zoom.us/j/4327715646?pwd=VDNLN3VWS2tsR3lwdm5yRlZaMW9jdz09"}
           - {label: "Give URL", name: "give_url", widget: "string", default: "https://www.givelify.com/givenow/1.0/?token=eyJvcmdfaWQiOiJNVFV5TURJfiIsImJhZGdlX2ltYWdlIjoiYjMucG5nIn0"}
 
-  - name: "events"
-    label: "Events"
-    folder: "_events"
+  - name: "announcements"
+    label: "Announcements"
+    folder: "_announcements"
     create: true
-    slug: "{{slug}}"
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
     fields:
       - {label: "Title", name: "title", widget: "string"}
-      - {label: "Description", name: "description", widget: "text"}
-      - {label: "Date/Time", name: "datetime", widget: "string"}
-      - {label: "Image", name: "image", widget: "image", required: false}
-      - {label: "Link", name: "link", widget: "string", required: false}
-      - {label: "Link Text", name: "link_text", widget: "string", required: false}
-
-  - name: "settings"
-    label: "Site Settings"
-    files:
-      - label: "Navigation"
-        name: "navigation"
-        file: "_data/navigation.yml"
-        fields:
-          - label: "Navigation Items"
-            name: "nav_items"
-            widget: "list"
-            fields:
-              - {label: "Title", name: "title", widget: "string"}
-              - {label: "URL", name: "url", widget: "string"}
-              - {label: "External", name: "external", widget: "boolean", default: false}
+      - {label: "Publish Date", name: "date", widget: "datetime"}
+      - {label: "Content", name: "body", widget: "markdown"}
+      - {label: "Featured Image", name: "image", widget: "image", required: false}

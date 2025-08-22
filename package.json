@@ -1,0 +1,18 @@
+{
+  "name": "bmmbc-church-website",
+  "version": "1.0.0",
+  "description": "Bethel Metropolitan Baptist Church website with visual editor",
+  "main": "index.html",
+  "scripts": {
+    "dev": "netlify dev",
+    "build": "echo 'Static site - no build needed'",
+    "deploy": "netlify deploy --prod"
+  },
+  "dependencies": {
+    "@octokit/rest": "^19.0.5"
+  },
+  "devDependencies": {},
+  "keywords": ["church", "website", "netlify", "visual-editor"],
+  "author": "Systems2Beyond",
+  "license": "MIT"
+}

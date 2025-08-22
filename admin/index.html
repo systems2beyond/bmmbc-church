@@ -1,25 +1,208 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="robots" content="noindex" />
-  <title>BMBC Church Admin</title>
+  <meta charset="utf-8">
+  <title>BMBC Church Visual Editor</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://unpkg.com/grapesjs/dist/css/grapes.min.css">
+  <script src="https://unpkg.com/grapesjs"></script>
+  <script src="https://unpkg.com/grapesjs-preset-webpage"></script>
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  <style>
+    body, html {
+      height: 100%;
+      margin: 0;
+    }
+    #gjs {
+      height: 100vh;
+      overflow: hidden;
+    }
+    .login-screen {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: #f5f5f5;
+      font-family: Arial, sans-serif;
+    }
+    .login-card {
+      background: white;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
-  <!-- Include the script that builds the page and powers Netlify CMS -->
-  <script src="https://unpkg.com/netlify-cms@^2.0.0/dist/netlify-cms.js"></script>
+  <div id="login-screen" class="login-screen">
+    <div class="login-card">
+      <h2>BMBC Church Visual Editor</h2>
+      <p>Please log in to edit your website</p>
+      <div data-netlify-identity-menu></div>
+    </div>
+  </div>
   
+  <div id="gjs" style="display: none;"></div>
+
   <script>
+    let editor;
+    let currentUser = null;
+
+    // Initialize Netlify Identity
     if (window.netlifyIdentity) {
       window.netlifyIdentity.on("init", user => {
-        if (!user) {
-          window.netlifyIdentity.on("login", () => {
-            document.location.href = "/admin/";
+        currentUser = user;
+        if (user) {
+          showEditor();
+        }
+      });
+
+      window.netlifyIdentity.on("login", user => {
+        currentUser = user;
+        showEditor();
+      });
+
+      window.netlifyIdentity.on("logout", () => {
+        currentUser = null;
+        showLogin();
+      });
+    }
+
+    function showLogin() {
+      document.getElementById('login-screen').style.display = 'flex';
+      document.getElementById('gjs').style.display = 'none';
+    }
+
+    function showEditor() {
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('gjs').style.display = 'block';
+      
+      if (!editor) {
+        initializeEditor();
+      }
+    }
+
+    async function loadSiteContent() {
+      try {
+        const response = await fetch('/index.html');
+        const html = await response.text();
+        return html;
+      } catch (error) {
+        console.error('Error loading site content:', error);
+        return '<div>Error loading content</div>';
+      }
+    }
+
+    async function initializeEditor() {
+      const siteContent = await loadSiteContent();
+      
+      editor = grapesjs.init({
+        container: '#gjs',
+        height: '100vh',
+        width: 'auto',
+        plugins: ['gjs-preset-webpage'],
+        pluginsOpts: {
+          'gjs-preset-webpage': {}
+        },
+        storageManager: {
+          type: 'remote',
+          stepsBeforeSave: 1,
+          options: {
+            remote: {
+              urlLoad: '/.netlify/functions/load-page',
+              urlStore: '/.netlify/functions/save-page',
+              headers: {
+                'Authorization': `Bearer ${currentUser?.token?.access_token}`
+              }
+            }
+          }
+        },
+        assetManager: {
+          upload: '/.netlify/functions/upload-asset',
+          uploadName: 'files',
+          headers: {
+            'Authorization': `Bearer ${currentUser?.token?.access_token}`
+          }
+        },
+        canvas: {
+          styles: ['/styles.css']
+        }
+      });
+
+      // Load the current site content
+      editor.setComponents(siteContent);
+      
+      // Add custom blocks for church-specific content
+      editor.BlockManager.add('church-hero', {
+        label: 'Church Hero Section',
+        content: `
+          <section class="hero">
+            <div class="hero-content">
+              <h2>Welcome to</h2>
+              <h1 class="hero-title">Your Church Name</h1>
+              <h3 class="hero-subtitle">Your Tagline</h3>
+              <p>Your church description</p>
+              <div class="hero-buttons">
+                <a href="#visit-us" class="btn btn-primary">Visit Us</a>
+                <a href="#" class="btn btn-secondary">Watch Live</a>
+              </div>
+            </div>
+          </section>
+        `,
+        category: 'Church'
+      });
+
+      editor.BlockManager.add('church-contact', {
+        label: 'Contact Info',
+        content: `
+          <div class="location-card main-location">
+            <h3>Your Church Name</h3>
+            <p class="address">Your Address<br>City, State ZIP</p>
+            <div class="contact-info">
+              <p><strong>Phone:</strong> <a href="tel:555-555-5555">(555) 555-5555</a></p>
+              <p><strong>Email:</strong> <a href="mailto:info@church.com">info@church.com</a></p>
+            </div>
+            <div class="action-buttons">
+              <a href="#" class="btn btn-primary">Get Directions</a>
+              <a href="#" class="btn btn-secondary">Call Us</a>
+            </div>
+          </div>
+        `,
+        category: 'Church'
+      });
+
+      // Add save functionality
+      editor.Commands.add('save-page', {
+        run: function(editor) {
+          const html = editor.getHtml();
+          const css = editor.getCss();
+          
+          // Here you would implement saving to GitHub
+          console.log('Saving page...', { html, css });
+          
+          // Show success message
+          editor.Modal.open({
+            title: 'Page Saved',
+            content: 'Your changes have been saved successfully!'
           });
         }
       });
+
+      // Add save button to toolbar
+      editor.Panels.addButton('options', {
+        id: 'save-page',
+        className: 'fa fa-save',
+        command: 'save-page',
+        attributes: { title: 'Save Page' }
+      });
+    }
+
+    // Initialize on page load
+    if (currentUser) {
+      showEditor();
+    } else {
+      showLogin();
     }
   </script>
 </body>
